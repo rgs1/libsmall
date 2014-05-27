@@ -10,21 +10,18 @@ SOURCES = \
 	pool.c \
 	$(NULL)
 
-OBJECTS = \
-	$(SOURCES:.c=.o) \
-	queue-test.o \
-	dict-test.o \
-	list-test.o \
-	pool-test.o \
-	$(NULL)
-
-EXECUTABLES = \
-	$(SOURCES:.c=) \
+TESTS = \
 	queue-test \
 	dict-test \
 	list-test \
 	pool-test \
 	$(NULL)
+
+OBJECTS = \
+	$(SOURCES:.c=.o) \
+	$(TESTS:=.o) \
+	$(NULL)
+
 
 queue.o: queue.c queue.h
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -68,5 +65,8 @@ pool-test.o: pool.c pool.h
 pool-test: pool-test.o util.o slab.o
 	$(CC) $(CFLAGS) -DRUN_TESTS -lpthread $^ -o $@
 
+tests: $(TESTS)
+	for test in $^; do ./$$test ; done
+
 clean:
-	rm -rf $(OBJECTS) $(EXECUTABLES)
+	rm -rf $(OBJECTS) $(TESTS)
