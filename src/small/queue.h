@@ -27,4 +27,3 @@ void queue_set_user_data(queue_t q, void *data);
 void *queue_get_user_data(queue_t q);
 
 #endif
-

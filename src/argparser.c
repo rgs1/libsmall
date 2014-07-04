@@ -24,20 +24,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "argparser.h"
-#include "list.h"
-#include "util.h"
+#include <small/argparser.h>
+#include <small/list.h>
+#include <small/util.h>
 
 
 typedef struct {
   char c;
   char *value;
   char *desc;
-} opt;
+} opt_value;
 
-typedef opt * opt_t;
+typedef opt_value * opt_t;
 
-argparser_t argparser_new(int max_opts)
+SMALL_EXPORT argparser_t argparser_new(int max_opts)
 {
   argparser_t ap = safe_alloc(sizeof(argparser));
   ap->opts = dict_new(max_opts);
@@ -46,7 +46,7 @@ argparser_t argparser_new(int max_opts)
 }
 
 /* TODO: free opt_defs */
-void argparser_destroy(argparser_t ap)
+SMALL_EXPORT void argparser_destroy(argparser_t ap)
 {
   assert(ap);
   assert(ap->opts);
@@ -60,9 +60,9 @@ void argparser_destroy(argparser_t ap)
  *
  * TODO: chr == 'h' is illegal
  */
-void argparser_add(argparser_t ap, const char *name, char chr, const char *dval, const char *desc)
+SMALL_EXPORT void argparser_add(argparser_t ap, const char *name, char chr, const char *dval, const char *desc)
 {
-  opt_t opt_def = safe_alloc(sizeof(opt));
+  opt_t opt_def = safe_alloc(sizeof(opt_value));
 
   opt_def->c = chr;
   opt_def->value = strdup(dval);
@@ -164,7 +164,7 @@ static void help(argparser_t ap)
   }
 }
 
-void argparser_parse(argparser_t ap, int argc, const char **argv)
+SMALL_EXPORT void argparser_parse(argparser_t ap, int argc, const char **argv)
 {
   char *sopts = build_optstring(ap);
   struct option * options = build_options(ap);
@@ -205,7 +205,7 @@ void argparser_parse(argparser_t ap, int argc, const char **argv)
   free(options);
 }
 
-void argparser_show_opts(argparser_t ap)
+SMALL_EXPORT void argparser_show_opts(argparser_t ap)
 {
   char *key;
   int i;
@@ -226,12 +226,12 @@ void argparser_show_opts(argparser_t ap)
   printf("\n\n");
 }
 
-int argparser_get_int(argparser_t ap, const char *optname)
+SMALL_EXPORT int argparser_get_int(argparser_t ap, const char *optname)
 {
   return atoi(argparser_get_str(ap, optname));
 }
 
-const char * argparser_get_str(argparser_t ap, const char *optname)
+SMALL_EXPORT const char * argparser_get_str(argparser_t ap, const char *optname)
 {
   opt_t opt = (opt_t)dict_get(ap->opts, (char *)optname);
 
@@ -240,69 +240,3 @@ const char * argparser_get_str(argparser_t ap, const char *optname)
 
   return opt->value;
 }
-
-
-#ifdef RUN_TESTS
-
-static void test_no_opts(void)
-{
-  int argc = 1;
-  const char *argv[] = { "./prog" };
-  argparser_t ap = argparser_new(2);
-
-  argparser_add(ap, "max-events", 'e', "20", "max events for foo");
-  argparser_add(ap, "path", 'p', "/tmp", "path for bar");
-
-  argparser_parse(ap, argc, argv);
-
-  info("Checking default values are still there... ");
-  assert(argparser_get_int(ap, "max-events") == 20);
-  assert(strcmp(argparser_get_str(ap, "path"), "/tmp") == 0);
-
-  info("Checking there's no argv left...");
-  assert(ap->argc == 0);
-
-  argparser_destroy(ap);
-}
-
-static void test_basic(void)
-{
-  int argc = 7;
-  const char *argv[] = {
-    "./prog",
-    "--max-events",
-    "40",
-    "--path",
-    "/var/tmp",
-    "localhost",
-    "8080",
-  };
-  argparser_t ap = argparser_new(2);
-
-  argparser_add(ap, "max-events", 'e', "20", "max events for foo");
-  argparser_add(ap, "path", 'p', "/tmp", "path for bar");
-
-  argparser_parse(ap, argc, argv);
-
-  info("Checking default values were replaced... ");
-  assert(argparser_get_int(ap, "max-events") == 40);
-  assert(strcmp(argparser_get_str(ap, "path"), "/var/tmp") == 0);
-
-  info("Checking there's 2 arg in argv left...");
-  assert(ap->argc == 2);
-  assert(strcmp(ap->argv[0], "localhost") == 0);
-  assert(strcmp(ap->argv[1], "8080") == 0);
-
-  argparser_destroy(ap);
-}
-
-int main(int argc, char **argv)
-{
-  run_test("no opts - just defaults", &test_no_opts);
-  run_test("basic opts", &test_basic);
-
-  return 0;
-}
-
-
-#endif

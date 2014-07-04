@@ -1,17 +1,6 @@
-/*
- * A very simple queue drop-in implementation for writing
- * quick throw away tests/prototypes.
- *
- * To test:
- *   gcc -DRUN_TESTS -Wall -lpthread queue.c -o queue
- */
-
 #ifndef _GNU_SOURCE
 #  define _GNU_SOURCE
 #endif
-
-#include "queue.h"
-#include "util.h"
 
 #include <assert.h>
 #include <stdarg.h>
@@ -22,120 +11,11 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-
-void queue_init(queue_t q)
-{
-  if (pthread_mutex_init(&q->lock, 0)) {
-    error(EXIT_SYSTEM_CALL, "Failed to init mutex");
-  }
-}
-
-queue_t queue_new(int size)
-{
-  queue_t q = safe_alloc(sizeof(queue));
-  q->ptrs = safe_alloc(sizeof(void *) * size);
-  q->size = size;
-  queue_init(q);
-  return q;
-}
-
-void queue_destroy(queue_t q)
-{
-  assert(q);
-  assert(q->ptrs);
-  free(q->ptrs);
-  free(q);
-}
-
-int queue_add(queue_t q, void *item)
-{
-  int rv = 1;
-
-  pthread_mutex_lock(&q->lock);
-
-  /* queue full?*/
-  if (q->count == q->size) {
-    warn("Can't add item, queue is full");
-    rv = 0;
-    goto out;
-  }
-
-  if (q->tail >= q->size) {
-    q->tail = 0;
-  }
+#include <small/queue.h>
+#include <small/util.h>
 
 
-  q->ptrs[q->tail] = item;
-  q->tail++;
-  q->count++;
-
-  pthread_cond_broadcast(&q->cond);
-
-out:
-  pthread_mutex_unlock(&q->lock);
-
-  return rv;
-}
-
-/*
- * you need to lock the queue to call this
- * returns 1 if empty, 0 otherwise
- */
-int queue_empty(queue_t q)
-{
-  return q->count == 0;
-}
-
-/* blocks until there's an element to remove */
-void *queue_remove(queue_t q)
-{
-  void *item = NULL;
-
-  pthread_mutex_lock(&q->lock);
-
-  while (queue_empty(q)) {
-    pthread_cond_wait(&q->cond, &q->lock);
-  }
-
-  if (q->head >= q->size)
-    q->head = 0;
-
-  item = q->ptrs[q->head];
-  q->head++;
-  q->count--;
-
-  pthread_mutex_unlock(&q->lock);
-
-  return item;
-}
-
-int queue_count(queue_t q)
-{
-  return q->count;
-}
-
-
-void queue_set_user_data(queue_t q, void *data)
-{
-  if (q->user_data)
-    info("overwriting user_data");
-
-  q->user_data = data;
-}
-
-void *queue_get_user_data(queue_t q)
-{
-  return q->user_data;
-}
-
-
-/*
- * tests
- */
-
-#ifdef RUN_TESTS
-
-void *producer(void *data)
+static void *producer(void *data)
 {
   char *a = "hello";
   char *b = "goodbye";
@@ -156,7 +36,7 @@ void *producer(void *data)
   return NULL;
 }
 
-void *consumer(void *data)
+static void *consumer(void *data)
 {
   queue_t q = (queue_t)data;
 
@@ -169,7 +49,7 @@ void *consumer(void *data)
   return NULL;
 }
 
-void test_basic(void)
+static void test_basic(void)
 {
   queue_t q = queue_new(2);
   pthread_t producer_tid, consumer_tid;
@@ -185,7 +65,7 @@ void test_basic(void)
   queue_destroy(q);
 }
 
-void test_queue_full(void)
+static void test_queue_full(void)
 {
   char *a = "hello";
   char *b = "goodbye";
@@ -201,7 +81,7 @@ void test_queue_full(void)
   queue_destroy(q);
 }
 
-void test_more_than_size(void)
+static void test_more_than_size(void)
 {
   queue_t q = queue_new(3);
 
@@ -233,7 +113,7 @@ void test_more_than_size(void)
   assert(queue_count(q) == 0);
 }
 
-void test_right_value(void)
+static void test_right_value(void)
 {
   int a = 10;
   int b = 20;
@@ -276,5 +156,3 @@ int main(int argc, char **argv)
 
   return 0;
 }
-
-#endif

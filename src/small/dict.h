@@ -44,5 +44,3 @@ void dict_set_user_data(dict_t d, void *data);
 void * dict_get_user_data(dict_t q);
 
 #endif
-
-

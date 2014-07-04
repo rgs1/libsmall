@@ -1,7 +1,9 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+#  define _GNU_SOURCE
+#endif
 
 #include <pthread.h>
 
@@ -9,6 +11,7 @@
 #define EXIT_BAD_PARAMS       1
 #define EXIT_SYSTEM_CALL      2
 
+#define SMALL_EXPORT __attribute__ ((visibility("default")))
 
 void * safe_alloc(size_t count);
 void * safe_realloc(void *mem, size_t old_size, size_t new_size);

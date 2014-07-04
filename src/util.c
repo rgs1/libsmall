@@ -1,5 +1,3 @@
-#include "util.h"
-
 #include <assert.h>
 #include <pwd.h>
 #include <stdio.h>
@@ -10,11 +8,13 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <small/util.h>
+
 
 static void do_log(const char *level, const char *msgfmt, va_list ap);
 
 
-void * safe_alloc(size_t count)
+SMALL_EXPORT void * safe_alloc(size_t count)
 {
   void *ptr = malloc(count);
   if (!ptr)
@@ -23,14 +23,17 @@ void * safe_alloc(size_t count)
   return ptr;
 }
 
-void * safe_realloc(void *mem, size_t old_size, size_t new_size)
+SMALL_EXPORT void * safe_realloc(void *mem, size_t old_size, size_t new_size)
 {
+  void *p;
+
   assert(new_size > 0);
   assert(new_size > old_size);
   mem = realloc(mem, new_size);
   if (!mem)
     error(EXIT_SYSTEM_CALL, "Failed to allocate more memory");
-  memset(mem + old_size, 0, new_size - old_size);
+  p = (void *)((char *)mem + old_size);
+  memset(p, 0, new_size - old_size);
   return mem;
 }
 
@@ -42,7 +45,7 @@ char * safe_strdup(const char *str)
   return s;
 }
 
-int positive_int(const char *str, const char *param_name)
+SMALL_EXPORT int positive_int(const char *str, const char *param_name)
 {
   int ret = atoi(str);
 
@@ -52,7 +55,7 @@ int positive_int(const char *str, const char *param_name)
   return ret;
 }
 
-void change_uid(const char *username)
+SMALL_EXPORT void change_uid(const char *username)
 {
   struct passwd *passwd;
 
@@ -62,7 +65,7 @@ void change_uid(const char *username)
   setuid(passwd->pw_uid);
 }
 
-void error(int rc, const char *msgfmt, ...)
+SMALL_EXPORT void error(int rc, const char *msgfmt, ...)
 {
   va_list ap;
 
@@ -73,7 +76,7 @@ void error(int rc, const char *msgfmt, ...)
   exit(rc);
 }
 
-void warn(const char *msgfmt, ...)
+SMALL_EXPORT void warn(const char *msgfmt, ...)
 {
   va_list ap;
 
@@ -82,7 +85,7 @@ void warn(const char *msgfmt, ...)
   va_end(ap);
 }
 
-void info(const char *msgfmt, ...)
+SMALL_EXPORT void info(const char *msgfmt, ...)
 {
   va_list ap;
 
@@ -105,14 +108,14 @@ static void do_log(const char *level, const char *msgfmt, va_list ap)
   printf("\n");
 }
 
-void set_thread_name(pthread_t thread, const char *name)
+SMALL_EXPORT void set_thread_name(pthread_t thread, const char *name)
 {
 #if __GLIBC__ >= 2 && __GLIBC_MINOR__ >= 12
   pthread_setname_np(thread, name);
 #endif
 }
 
-void run_test(const char *test_desc, void (*test_func) (void))
+SMALL_EXPORT void run_test(const char *test_desc, void (*test_func) (void))
 {
   info("Running %s", test_desc);
   test_func();

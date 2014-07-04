@@ -3,11 +3,12 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "pool.h"
-#include "slab.h"
-#include "util.h"
+#include <small/pool.h>
+#include <small/slab.h>
+#include <small/util.h>
 
-void pool_init(pool_t p)
+
+SMALL_EXPORT void pool_init(pool_t p)
 {
   INIT_LOCK(p);
 }
@@ -27,7 +28,7 @@ static void add_slab(pool_t p, int size)
   p->free_list = safe_realloc(p->free_list, old, new);
 }
 
-pool_t pool_new(int size, int item_size)
+SMALL_EXPORT pool_t pool_new(int size, int item_size)
 {
   pool_t p = safe_alloc(sizeof(pool));
   pool_init(p);
@@ -37,7 +38,7 @@ pool_t pool_new(int size, int item_size)
   return p;
 }
 
-void pool_destroy(pool_t p)
+SMALL_EXPORT void pool_destroy(pool_t p)
 {
   int i;
 
@@ -68,7 +69,7 @@ static slab_t get_usable_slab(pool_t p)
   return NULL;
 }
 
-void * pool_get(pool_t p)
+SMALL_EXPORT void * pool_get(pool_t p)
 {
   slab_t s;
   void *item = NULL;
@@ -93,7 +94,7 @@ void * pool_get(pool_t p)
   return item;
 }
 
-void pool_put(pool_t p, void *item)
+SMALL_EXPORT void pool_put(pool_t p, void *item)
 {
   assert(p->free_count >= 0);
 
@@ -102,7 +103,7 @@ void pool_put(pool_t p, void *item)
   UNLOCK(p);
 }
 
-void pool_resize(pool_t p, int new_size)
+SMALL_EXPORT void pool_resize(pool_t p, int new_size)
 {
   size_t size;
 
@@ -115,88 +116,3 @@ void pool_resize(pool_t p, int new_size)
   add_slab(p, size);
   UNLOCK(p);
 }
-
-#ifdef RUN_TESTS
-
-static void test_basic(void)
-{
-  int i;
-  void *start = NULL;
-  void *item;
-  pool_t p = pool_new(100, 10);
-
-  /* get all items */
-  for (i=0; i < 10; i++) {
-    item = pool_get(p);
-    if (!i)
-      start = item;
-    assert(item);
-  }
-
-  assert(pool_get(p) == NULL);
-
-  /* put all items */
-  for (i=0; i < 10; i++)
-    pool_put(p, start + (i * 10));
-
-  /* get them back */
-  for (i=0; i < 10; i++)
-    assert(pool_get(p));
-
-  pool_destroy(p);
-}
-
-static void test_resize(void)
-{
-  void *a, *b, *c;
-  pool_t p = pool_new(20, 10);
-
-  a = pool_get(p);
-  assert(a);
-
-  b = pool_get(p);
-  assert(b);
-
-  assert(pool_get(p) == NULL);
-
-  pool_resize(p, 30);
-
-  c = pool_get(p);
-  assert(c);
-
-  assert(pool_get(p) == NULL);
-
-  /* put them back */
-  pool_put(p, a);
-  pool_put(p, b);
-  pool_put(p, c);
-
-  /* get them again */
-  a = pool_get(p);
-  assert(a);
-
-  b = pool_get(p);
-  assert(b);
-
-  c = pool_get(p);
-  assert(c);
-
-  assert(pool_get(p) == NULL);
-
-  /* put them back, again */
-  pool_put(p, a);
-  pool_put(p, b);
-  pool_put(p, c);
-
-  pool_destroy(p);
-}
-
-int main(int argc, char **argv)
-{
-  run_test("basic", &test_basic);
-  run_test("resize", &test_resize);
-
-  return 0;
-}
-
-#endif

@@ -11,9 +11,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dict.h"
-#include "list.h"
-#include "util.h"
+#include <small/dict.h>
+#include <small/list.h>
+#include <small/util.h>
 
 #define DICT_KEY_COLLISIONS     10
 
@@ -21,7 +21,7 @@
   for (i = 0, list = dict->keys[0]; i < dict->size; i++, list = dict->keys[i])
 
 
-void dict_init(dict_t d)
+SMALL_EXPORT void dict_init(dict_t d)
 {
   INIT_LOCK(d);
 }
@@ -40,7 +40,7 @@ static int default_hash_func(void *key, int size)
   return (int)(((long)key / 32) % size);
 }
 
-dict_t dict_new(int size)
+SMALL_EXPORT dict_t dict_new(int size)
 {
   int i;
   dict_t d = safe_alloc(sizeof(dict));
@@ -58,12 +58,12 @@ dict_t dict_new(int size)
   return d;
 }
 
-void dict_set_key_comparator(dict_t d, int (*comparator)(void *, void *))
+SMALL_EXPORT void dict_set_key_comparator(dict_t d, int (*comparator)(void *, void *))
 {
   d->key_comparator = comparator;
 }
 
-void dict_set_hash_func(dict_t d, int (*hash_func)(void *, int))
+SMALL_EXPORT void dict_set_hash_func(dict_t d, int (*hash_func)(void *, int))
 {
   d->hash_func = hash_func;
 }
@@ -76,7 +76,8 @@ static int strings_cmp(void *a, void *b)
 static int strings_hash(void *key, int size)
 {
   const char *s = (const char *)key;
-  int sum = 0, i;
+  int sum = 0;
+  unsigned int i;
 
   assert(s);
 
@@ -86,13 +87,13 @@ static int strings_hash(void *key, int size)
   return sum % size;
 }
 
-void dict_use_string_keys(dict_t d)
+SMALL_EXPORT void dict_use_string_keys(dict_t d)
 {
   dict_set_key_comparator(d, &strings_cmp);
   dict_set_hash_func(d, &strings_hash);
 }
 
-void dict_destroy(dict_t d)
+SMALL_EXPORT void dict_destroy(dict_t d)
 {
   int i;
 
@@ -144,7 +145,7 @@ static void * remove_key_value(list_t keys, dict_key_value_t kv)
  *  - the new value, if there was no key
  *  - NULL, if the dictionary is full
  */
-void *dict_set(dict_t d, void *key, void *value)
+SMALL_EXPORT void *dict_set(dict_t d, void *key, void *value)
 {
   void *old = NULL;
   list_t keys = NULL;
@@ -175,7 +176,7 @@ out:
 
 
 /* the value associated to the key, or NULL */
-void * dict_get(dict_t d, void *key)
+SMALL_EXPORT void * dict_get(dict_t d, void *key)
 {
   list_t keys = NULL;
   dict_key_value_t kv = NULL;
@@ -192,7 +193,7 @@ void * dict_get(dict_t d, void *key)
   return value;
 }
 
-void * dict_unset(dict_t d, void *key)
+SMALL_EXPORT void * dict_unset(dict_t d, void *key)
 {
   list_t keys = NULL;
   dict_key_value_t kv = NULL;
@@ -218,7 +219,7 @@ static void * key_transform(list_item_t item)
   return kv->key;
 }
 
-list_t dict_keys(dict_t d)
+SMALL_EXPORT list_t dict_keys(dict_t d)
 {
   list_t keys;
   list_t collision_list;
@@ -239,106 +240,7 @@ list_t dict_values(dict_t d)
   return NULL;
 }
 
-int dict_count(dict_t d)
+SMALL_EXPORT int dict_count(dict_t d)
 {
   return d->count;
 }
-
-#ifdef RUN_TESTS
-
-static void test_basic(void)
-{
-  dict_t d = dict_new(10);
-  list_t keys;
-
-  dict_set(d, "hello", "goodbye");
-
-  info("dict has %d keys", dict_count(d));
-  assert(dict_count(d) == 1);
-  assert(strcmp(dict_get(d, "hello"), "goodbye") == 0);
-  assert(dict_get(d, "nokey") == NULL);
-
-  dict_set(d, "hello", "updated");
-
-  info("dict has %d keys", dict_count(d));
-  assert(dict_count(d) == 1);
-  assert(strcmp(dict_get(d, "hello"), "updated") == 0);
-
-  dict_unset(d, "hello");
-
-  info("dict has %d keys", dict_count(d));
-  assert(dict_count(d) == 0);
-  assert(dict_get(d, "hello") == NULL);
-
-  dict_set(d, "a", "1");
-  dict_set(d, "b", "2");
-  keys = dict_keys(d);
-
-  info("dict has %d keys", dict_count(d));
-
-  assert(list_contains(keys, "a") > 0);
-  assert(list_contains(keys, "b") > 0);
-
-  list_destroy(keys);
-}
-
-static void test_string_keys(void)
-{
-  dict_t d = dict_new(10);
-
-  dict_use_string_keys(d);
-
-  dict_set(d, "hello", "goodbye");
-  info("dict has %d keys", dict_count(d));
-  assert(dict_count(d) == 1);
-  assert(strcmp(dict_get(d, strdup("hello")), "goodbye") == 0);
-  dict_set(d, strdup("hello"), "updated");
-  assert(dict_count(d) == 1);
-  assert(strcmp(dict_get(d, strdup("hello")), "updated") == 0);
-}
-
-static char * randstr(void)
-{
-  static char buf[40];
-  sprintf(buf, "abcdefghijklmnopqrstuvwyz0123456789");
-  return strdup(strfry(buf));
-}
-
-static void test_big_dict(void)
-{
-  char *k;
-  int num_keys = 1 << 13;
-  dict_t d = dict_new(num_keys);
-  int i;
-  list_t keys = list_new(num_keys);
-  list_item_t item;
-
-  dict_use_string_keys(d);
-
-  /* add keys */
-  for (i=0; i < num_keys; i++) {
-    k = randstr();
-    dict_set(d, k, k);
-    list_append(keys, k);
-  }
-
-  info("dict has %d keys", dict_count(d));
-  assert(dict_count(d) > 1);
-
-  /* check keys are there */
-  list_for_each(item, k, keys) {
-    assert(strcmp(dict_get(d, k), k) == 0);
-  }
-}
-
-int main(int argc, char **argv)
-{
-  run_test("basic: add, set, get & remove", &test_basic);
-  run_test("string keys", &test_string_keys);
-  run_test("big dict", &test_big_dict);
-
-  return 0;
-}
-
-
-#endif

@@ -1,0 +1,12 @@
+.dirstamp
+.deps/
+.libs/
+*.la
+*.lo
+libsmall.pc
+test-argparser
+test-dict
+test-pool
+test-list
+test-queue
+*~
