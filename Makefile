@@ -8,6 +8,7 @@ SOURCES = \
 	util.c \
 	slab.c \
 	pool.c \
+	argparser.c \
 	$(NULL)
 
 TESTS = \
@@ -15,6 +16,7 @@ TESTS = \
 	dict-test \
 	list-test \
 	pool-test \
+	argparser-test \
 	$(NULL)
 
 OBJECTS = \
@@ -41,6 +43,9 @@ slab.o: slab.c slab.h
 pool.o: pool.c pool.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+argparser.o: argparser.c argparser.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 queue-test.o: queue.c queue.h
 	$(CC) $(CFLAGS) -DRUN_TESTS -c $< -o $@
 
@@ -63,6 +68,12 @@ pool-test.o: pool.c pool.h
 	$(CC) $(CFLAGS) -DRUN_TESTS -c $< -o $@
 
 pool-test: pool-test.o util.o slab.o
+	$(CC) $(CFLAGS) -DRUN_TESTS -lpthread $^ -o $@
+
+argparser-test.o: argparser.c argparser.h
+	$(CC) $(CFLAGS) -DRUN_TESTS -c $< -o $@
+
+argparser-test: argparser-test.o dict.o util.o list.o pool.o slab.o
 	$(CC) $(CFLAGS) -DRUN_TESTS -lpthread $^ -o $@
 
 tests: $(TESTS)
