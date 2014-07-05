@@ -28,7 +28,7 @@ struct dict_key_value {
 typedef struct dict_key_value dict_key_value;
 
 struct dict {
-  list_t *keys;
+  list **keys;
   pool_t pool;
   int count;
   int size;
@@ -70,7 +70,7 @@ SMALL_EXPORT dict *dict_new(int size)
   dict *d = safe_alloc(sizeof(dict));
 
   /* init lists */
-  d->keys = (list_t *)safe_alloc(sizeof(list_t) * size);
+  d->keys = (list **)safe_alloc(sizeof(list *) * size);
   for (i=0; i < size; i++)
     d->keys[i] = list_new(DICT_KEY_COLLISIONS);
 
@@ -131,16 +131,16 @@ SMALL_EXPORT void dict_destroy(dict *d)
   free(d);
 }
 
-static list_t get_keys(dict *d, void *key)
+static list *get_keys(dict *d, void *key)
 {
   int pos = d->hash_func(key, d->size);
   return d->keys[pos];
 }
 
-static dict_key_value *key_value_for(dict *d, void *key, list_t *keys)
+static dict_key_value *key_value_for(dict *d, void *key, list **keys)
 {
   dict_key_value *kv;
-  list_item_t item;
+  list_item *item;
 
   *keys = get_keys(d, key);
   assert(*keys);
@@ -152,14 +152,14 @@ static dict_key_value *key_value_for(dict *d, void *key, list_t *keys)
   return NULL;
 }
 
-static void add_key_value(list_t keys, dict_key_value *kv)
+static void add_key_value(list *keys, dict_key_value *kv)
 {
   if (list_full(keys))
     list_resize(keys, list_count(keys) * 2);
   list_append(keys, kv);
 }
 
-static void * remove_key_value(list_t keys, dict_key_value *kv)
+static void * remove_key_value(list *keys, dict_key_value *kv)
 {
   return list_remove_by_value(keys, kv);
 }
@@ -172,7 +172,7 @@ static void * remove_key_value(list_t keys, dict_key_value *kv)
 SMALL_EXPORT void *dict_set(dict *d, void *key, void *value)
 {
   void *old = NULL;
-  list_t keys = NULL;
+  list *keys = NULL;
   dict_key_value *kv = NULL;
 
   LOCK(d);
@@ -202,7 +202,7 @@ out:
 /* the value associated to the key, or NULL */
 SMALL_EXPORT void * dict_get(dict *d, void *key)
 {
-  list_t keys = NULL;
+  list *keys = NULL;
   dict_key_value *kv = NULL;
   void * value = NULL;
 
@@ -219,7 +219,7 @@ SMALL_EXPORT void * dict_get(dict *d, void *key)
 
 SMALL_EXPORT void * dict_unset(dict *d, void *key)
 {
-  list_t keys = NULL;
+  list *keys = NULL;
   dict_key_value *kv = NULL;
   void * value = NULL;
 
@@ -237,16 +237,16 @@ SMALL_EXPORT void * dict_unset(dict *d, void *key)
   return value;
 }
 
-static void * key_transform(list_item_t item)
+static void * key_transform(list_item *item)
 {
-  dict_key_value *kv = (dict_key_value *)item->value;
+  dict_key_value *kv = (dict_key_value *)list_item_value(item);
   return kv->key;
 }
 
-SMALL_EXPORT list_t dict_keys(dict *d)
+SMALL_EXPORT list *dict_keys(dict *d)
 {
-  list_t keys;
-  list_t collision_list;
+  list *keys;
+  list *collision_list;
   int i;
 
   LOCK(d);
@@ -259,7 +259,7 @@ SMALL_EXPORT list_t dict_keys(dict *d)
   return keys;
 }
 
-list_t dict_values(dict *d)
+list *dict_values(dict *d)
 {
   return NULL;
 }

@@ -1,3 +1,5 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -15,7 +17,7 @@
 static void test_basic(void)
 {
   dict *d = dict_new(10);
-  list_t keys;
+  list *keys;
 
   dict_set(d, "hello", "goodbye");
 
@@ -76,8 +78,8 @@ static void test_big_dict(void)
   int num_keys = 1 << 13;
   dict *d = dict_new(num_keys);
   int i;
-  list_t keys = list_new(num_keys);
-  list_item_t item;
+  list *keys = list_new(num_keys);
+  list_item *item;
 
   dict_use_string_keys(d);
 

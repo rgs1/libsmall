@@ -1,3 +1,5 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +11,7 @@
 
 static void test_add(void)
 {
-  list_t l = list_new(10);
+  list *l = list_new(10);
   list_prepend(l, "hello");
   list_append(l, "goodbye");
   info("list has %d items", list_count(l));
@@ -18,7 +20,7 @@ static void test_add(void)
 
 static void test_add_no_space(void)
 {
-  list_t l = list_new(1);
+  list *l = list_new(1);
 
   assert(list_prepend(l, "hello"));
   assert(list_append(l, "goodbye") == NULL);
@@ -28,7 +30,7 @@ static void test_add_no_space(void)
 
 static void test_remove(void)
 {
-  list_t l = list_new(10);
+  list *l = list_new(10);
 
   list_prepend(l, "hello");
   list_append(l, "goodbye");
@@ -36,7 +38,7 @@ static void test_remove(void)
   assert(list_count(l) == 2);
 
   list_remove_by_value(l, "goodbye");
-  info("list has %d items, head = %s", list_count(l), l->head->value);
+  info("list has %d items, head = %s", list_count(l), list_item_value(list_head(l)));
   assert(list_count(l) == 1);
 
   list_remove_by_value(l, "hello");
@@ -56,7 +58,7 @@ static void test_remove(void)
 
 static void test_get(void)
 {
-  list_t l = list_new(10);
+  list *l = list_new(10);
 
   list_append(l, "one");
   list_append(l, "two");
@@ -71,7 +73,7 @@ static void test_get(void)
 
 static void test_resize(void)
 {
-  list_t l = list_new(2);
+  list *l = list_new(2);
 
   list_append(l, "one");
   list_append(l, "two");

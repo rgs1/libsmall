@@ -85,8 +85,8 @@ static char * build_optstring(argparser *ap)
   char *key;
   char *optstring;
   int keys_cnt, i;
-  list_t keys;
-  list_item_t item;
+  list *keys;
+  list_item *item;
   opt_t opt;
 
   keys_cnt = dict_count(ap->opts);
@@ -110,8 +110,8 @@ static struct option * build_options(argparser *ap)
 {
   char *key;
   int keys_cnt, i;
-  list_t keys;
-  list_item_t item;
+  list *keys;
+  list_item *item;
   opt_t opt;
   struct option * options;
 
@@ -141,8 +141,8 @@ static struct option * build_options(argparser *ap)
 static char * key_from_char(argparser *ap, char c)
 {
   char *key;
-  list_t keys;
-  list_item_t item;
+  list *keys;
+  list_item *item;
   opt_t opt;
 
   keys = dict_keys(ap->opts);
@@ -158,8 +158,8 @@ static char * key_from_char(argparser *ap, char c)
 static void help(argparser *ap)
 {
   char *key;
-  list_t keys;
-  list_item_t item;
+  list *keys;
+  list_item *item;
   opt_t opt;
 
   printf("%s [OPTIONS...] [args]\n\n", program_invocation_short_name);
@@ -218,8 +218,8 @@ SMALL_EXPORT void argparser_show_opts(argparser *ap)
 {
   char *key;
   int i;
-  list_t keys;
-  list_item_t item;
+  list *keys;
+  list_item *item;
   opt_t opt;
 
   printf("Options:\n");
