@@ -1,9 +1,7 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 /*
- * A very simple queue drop-in implementation for writing
- * quick throw away tests/prototypes.
- *
- * To test:
- *   gcc -DRUN_TESTS -Wall -lpthread queue.c -o queue
+ * A very simple queue implementation
  */
 
 #ifndef _GNU_SOURCE
@@ -11,6 +9,7 @@
 #endif
 
 #include <assert.h>
+#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,23 +22,35 @@
 #include <small/util.h>
 
 
-SMALL_EXPORT void queue_init(queue_t q)
+struct queue {
+  void **ptrs;
+  int head;
+  int tail;
+  int count;
+  int size;
+  pthread_mutex_t lock;
+  pthread_cond_t cond;
+  void *user_data;
+};
+
+
+SMALL_EXPORT void queue_init(queue *q)
 {
   if (pthread_mutex_init(&q->lock, 0)) {
     error(EXIT_SYSTEM_CALL, "Failed to init mutex");
   }
 }
 
-SMALL_EXPORT queue_t queue_new(int size)
+SMALL_EXPORT queue *queue_new(int size)
 {
-  queue_t q = safe_alloc(sizeof(queue));
+  queue *q = safe_alloc(sizeof(queue));
   q->ptrs = safe_alloc(sizeof(void *) * size);
   q->size = size;
   queue_init(q);
   return q;
 }
 
-SMALL_EXPORT void queue_destroy(queue_t q)
+SMALL_EXPORT void queue_destroy(queue *q)
 {
   assert(q);
   assert(q->ptrs);
@@ -47,7 +58,7 @@ SMALL_EXPORT void queue_destroy(queue_t q)
   free(q);
 }
 
-SMALL_EXPORT int queue_add(queue_t q, void *item)
+SMALL_EXPORT int queue_add(queue *q, void *item)
 {
   int rv = 1;
 
@@ -81,13 +92,13 @@ out:
  * you need to lock the queue to call this
  * returns 1 if empty, 0 otherwise
  */
-SMALL_EXPORT int queue_empty(queue_t q)
+SMALL_EXPORT int queue_empty(queue *q)
 {
   return q->count == 0;
 }
 
 /* blocks until there's an element to remove */
-SMALL_EXPORT void *queue_remove(queue_t q)
+SMALL_EXPORT void *queue_remove(queue *q)
 {
   void *item = NULL;
 
@@ -109,13 +120,13 @@ SMALL_EXPORT void *queue_remove(queue_t q)
   return item;
 }
 
-SMALL_EXPORT int queue_count(queue_t q)
+SMALL_EXPORT int queue_count(queue *q)
 {
   return q->count;
 }
 
 
-SMALL_EXPORT void queue_set_user_data(queue_t q, void *data)
+SMALL_EXPORT void queue_set_user_data(queue *q, void *data)
 {
   if (q->user_data)
     info("overwriting user_data");
@@ -123,7 +134,7 @@ SMALL_EXPORT void queue_set_user_data(queue_t q, void *data)
   q->user_data = data;
 }
 
-SMALL_EXPORT void *queue_get_user_data(queue_t q)
+SMALL_EXPORT void *queue_get_user_data(queue *q)
 {
   return q->user_data;
 }

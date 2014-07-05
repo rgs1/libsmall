@@ -1,3 +1,5 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 #ifndef _GNU_SOURCE
 #  define _GNU_SOURCE
 #endif
@@ -19,7 +21,7 @@ static void *producer(void *data)
 {
   char *a = "hello";
   char *b = "goodbye";
-  queue_t q = (queue_t)data;
+  queue *q = (queue *)data;
 
   info("Adding a=%s", a);
   queue_add(q, a);
@@ -38,7 +40,7 @@ static void *producer(void *data)
 
 static void *consumer(void *data)
 {
-  queue_t q = (queue_t)data;
+  queue *q = (queue *)data;
 
   info("removed item = %s", (char *)queue_remove(q));
   sleep(4);
@@ -51,7 +53,7 @@ static void *consumer(void *data)
 
 static void test_basic(void)
 {
-  queue_t q = queue_new(2);
+  queue *q = queue_new(2);
   pthread_t producer_tid, consumer_tid;
 
   pthread_create(&producer_tid, NULL, &producer, q);
@@ -69,7 +71,7 @@ static void test_queue_full(void)
 {
   char *a = "hello";
   char *b = "goodbye";
-  queue_t q = queue_new(1);
+  queue *q = queue_new(1);
 
   assert(queue_add(q, a));
   info("count = %d", queue_count(q));
@@ -83,7 +85,7 @@ static void test_queue_full(void)
 
 static void test_more_than_size(void)
 {
-  queue_t q = queue_new(3);
+  queue *q = queue_new(3);
 
   queue_add(q, NULL);
   queue_add(q, NULL);
@@ -119,7 +121,7 @@ static void test_right_value(void)
   int b = 20;
   int c = 30;
   int *item;
-  queue_t q = queue_new(3);
+  queue *q = queue_new(3);
 
   queue_add(q, &a);
   queue_add(q, &b);
