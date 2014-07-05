@@ -46,6 +46,12 @@ AS_IF([test "x$enable_debug" = "xyes"], [
         AC_DEFINE(ENABLE_DEBUG, [1], [Debug messages.])
 ])
 
+AC_CHECK_LIB([pthread], \
+             [pthread_mutex_lock], \
+             [have_pthread=yes], \
+             [AC_MSG_ERROR([pthread library not found])] \
+)
+
 AC_CHECK_FUNCS([ \
 	__secure_getenv \
 	secure_getenv\
