@@ -14,7 +14,7 @@
 
 static void test_basic(void)
 {
-  dict_t d = dict_new(10);
+  dict *d = dict_new(10);
   list_t keys;
 
   dict_set(d, "hello", "goodbye");
@@ -50,7 +50,7 @@ static void test_basic(void)
 
 static void test_string_keys(void)
 {
-  dict_t d = dict_new(10);
+  dict *d = dict_new(10);
 
   dict_use_string_keys(d);
 
@@ -74,7 +74,7 @@ static void test_big_dict(void)
 {
   char *k;
   int num_keys = 1 << 13;
-  dict_t d = dict_new(num_keys);
+  dict *d = dict_new(num_keys);
   int i;
   list_t keys = list_new(num_keys);
   list_item_t item;

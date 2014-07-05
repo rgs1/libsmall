@@ -33,7 +33,7 @@
 
 
 struct argparser {
-  dict_t opts;
+  dict *opts;
   int argc;
   char *argv[ARGPARSER_MAX_ARGV];
 };
