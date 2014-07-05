@@ -18,7 +18,7 @@ static void test_no_opts(void)
 {
   int argc = 1;
   const char *argv[] = { "./prog" };
-  argparser_t ap = argparser_new(2);
+  argparser *ap = argparser_new(2);
 
   argparser_add(ap, "max-events", 'e', "20", "max events for foo");
   argparser_add(ap, "path", 'p', "/tmp", "path for bar");
@@ -30,7 +30,7 @@ static void test_no_opts(void)
   assert(strcmp(argparser_get_str(ap, "path"), "/tmp") == 0);
 
   info("Checking there's no argv left...");
-  assert(ap->argc == 0);
+  assert(argparser_get_argc(ap) == 0);
 
   argparser_destroy(ap);
 }
@@ -47,7 +47,7 @@ static void test_basic(void)
     "localhost",
     "8080",
   };
-  argparser_t ap = argparser_new(2);
+  argparser *ap = argparser_new(2);
 
   argparser_add(ap, "max-events", 'e', "20", "max events for foo");
   argparser_add(ap, "path", 'p', "/tmp", "path for bar");
@@ -59,9 +59,9 @@ static void test_basic(void)
   assert(strcmp(argparser_get_str(ap, "path"), "/var/tmp") == 0);
 
   info("Checking there's 2 arg in argv left...");
-  assert(ap->argc == 2);
-  assert(strcmp(ap->argv[0], "localhost") == 0);
-  assert(strcmp(ap->argv[1], "8080") == 0);
+  assert(argparser_get_argc(ap) == 2);
+  assert(strcmp(argparser_get_argv(ap, 0), "localhost") == 0);
+  assert(strcmp(argparser_get_argv(ap, 1), "8080") == 0);
 
   argparser_destroy(ap);
 }

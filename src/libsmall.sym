@@ -5,6 +5,8 @@ global:
         argparser_add;
         argparser_get_int;
         argparser_get_str;
+        argparser_get_argv;
+        argparser_get_argc;
         argparser_parse;
         argparser_show_opts;
         dict_new;

@@ -1,9 +1,11 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 /*
  * a generic, extensible, argument parser
  *
  * example:
  *
- *    argparser_t ap = argparser_new();
+ *    argparser *ap = argparser_new();
  *    argparser_add(ap, "max-events", 'e', 20, "some desc");
  *    argparser_add(ap, "path", 'p', "/tmp", "other desc");
  *    ...
@@ -25,9 +27,16 @@
 #include <string.h>
 
 #include <small/argparser.h>
+#include <small/dict.h>
 #include <small/list.h>
 #include <small/util.h>
 
+
+struct argparser {
+  dict_t opts;
+  int argc;
+  char *argv[ARGPARSER_MAX_ARGV];
+};
 
 typedef struct {
   char c;
@@ -37,16 +46,16 @@ typedef struct {
 
 typedef opt_value * opt_t;
 
-SMALL_EXPORT argparser_t argparser_new(int max_opts)
+SMALL_EXPORT argparser *argparser_new(int max_opts)
 {
-  argparser_t ap = safe_alloc(sizeof(argparser));
+  argparser *ap = safe_alloc(sizeof(argparser));
   ap->opts = dict_new(max_opts);
   dict_use_string_keys(ap->opts);
   return ap;
 }
 
 /* TODO: free opt_defs */
-SMALL_EXPORT void argparser_destroy(argparser_t ap)
+SMALL_EXPORT void argparser_destroy(argparser *ap)
 {
   assert(ap);
   assert(ap->opts);
@@ -60,7 +69,7 @@ SMALL_EXPORT void argparser_destroy(argparser_t ap)
  *
  * TODO: chr == 'h' is illegal
  */
-SMALL_EXPORT void argparser_add(argparser_t ap, const char *name, char chr, const char *dval, const char *desc)
+SMALL_EXPORT void argparser_add(argparser *ap, const char *name, char chr, const char *dval, const char *desc)
 {
   opt_t opt_def = safe_alloc(sizeof(opt_value));
 
@@ -71,7 +80,7 @@ SMALL_EXPORT void argparser_add(argparser_t ap, const char *name, char chr, cons
   dict_set(ap->opts, strdup(name), opt_def);
 }
 
-static char * build_optstring(argparser_t ap)
+static char * build_optstring(argparser *ap)
 {
   char *key;
   char *optstring;
@@ -97,7 +106,7 @@ static char * build_optstring(argparser_t ap)
   return optstring;
 }
 
-static struct option * build_options(argparser_t ap)
+static struct option * build_options(argparser *ap)
 {
   char *key;
   int keys_cnt, i;
@@ -129,7 +138,7 @@ static struct option * build_options(argparser_t ap)
   return options;
 }
 
-static char * key_from_char(argparser_t ap, char c)
+static char * key_from_char(argparser *ap, char c)
 {
   char *key;
   list_t keys;
@@ -146,7 +155,7 @@ static char * key_from_char(argparser_t ap, char c)
   return NULL;
 }
 
-static void help(argparser_t ap)
+static void help(argparser *ap)
 {
   char *key;
   list_t keys;
@@ -164,7 +173,7 @@ static void help(argparser_t ap)
   }
 }
 
-SMALL_EXPORT void argparser_parse(argparser_t ap, int argc, const char **argv)
+SMALL_EXPORT void argparser_parse(argparser *ap, int argc, const char **argv)
 {
   char *sopts = build_optstring(ap);
   struct option * options = build_options(ap);
@@ -205,7 +214,7 @@ SMALL_EXPORT void argparser_parse(argparser_t ap, int argc, const char **argv)
   free(options);
 }
 
-SMALL_EXPORT void argparser_show_opts(argparser_t ap)
+SMALL_EXPORT void argparser_show_opts(argparser *ap)
 {
   char *key;
   int i;
@@ -226,12 +235,12 @@ SMALL_EXPORT void argparser_show_opts(argparser_t ap)
   printf("\n\n");
 }
 
-SMALL_EXPORT int argparser_get_int(argparser_t ap, const char *optname)
+SMALL_EXPORT int argparser_get_int(argparser *ap, const char *optname)
 {
   return atoi(argparser_get_str(ap, optname));
 }
 
-SMALL_EXPORT const char * argparser_get_str(argparser_t ap, const char *optname)
+SMALL_EXPORT const char * argparser_get_str(argparser *ap, const char *optname)
 {
   opt_t opt = (opt_t)dict_get(ap->opts, (char *)optname);
 
@@ -239,4 +248,15 @@ SMALL_EXPORT const char * argparser_get_str(argparser_t ap, const char *optname)
   assert(opt->value);
 
   return opt->value;
+}
+
+SMALL_EXPORT char * argparser_get_argv(argparser *ap, int argi)
+{
+  assert(argi < ap->argc);
+  return ap->argv[argi];
+}
+
+SMALL_EXPORT int argparser_get_argc(argparser *ap)
+{
+  return ap->argc;
 }
