@@ -40,8 +40,7 @@ pkginclude_HEADERS =\
 	src/small/dict.h \
 	src/small/list.h \
 	src/small/queue.h \
-	src/small/pool.h \
-	src/small/slab.h
+	src/small/util.h
 
 lib_LTLIBRARIES = src/libsmall.la
 
@@ -50,10 +49,11 @@ src_libsmall_la_SOURCES =\
 	src/dict.c \
 	src/list.c \
 	src/pool.c \
+	src/pool.h \
 	src/queue.c \
 	src/slab.c \
-	src/util.c \
-	src/util.h
+	src/slab.h \
+	src/util.c
 
 EXTRA_DIST += src/libsmall.sym
 

@@ -16,8 +16,9 @@
 
 #include <small/dict.h>
 #include <small/list.h>
-#include <small/pool.h>
 #include <small/util.h>
+
+#include "pool.h"
 
 
 struct dict_key_value {

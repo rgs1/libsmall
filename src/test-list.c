@@ -5,8 +5,9 @@
 #include <string.h>
 
 #include <small/list.h>
-#include <small/pool.h>
 #include <small/util.h>
+
+#include "pool.h"
 
 
 static void test_add(void)

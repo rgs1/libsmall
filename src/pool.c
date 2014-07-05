@@ -6,9 +6,10 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-#include <small/pool.h>
-#include <small/slab.h>
 #include <small/util.h>
+
+#include "pool.h"
+#include "slab.h"
 
 
 struct pool {
