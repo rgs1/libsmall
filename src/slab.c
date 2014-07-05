@@ -21,7 +21,7 @@ struct slab {
 
 
 
-SMALL_EXPORT void slab_init(slab *s)
+void slab_init(slab *s)
 {
   if (pthread_mutex_init(&s->lock, 0)) {
     error(EXIT_SYSTEM_CALL, "Failed to init mutex");
@@ -36,29 +36,29 @@ slab *slab_new(int size)
   return s;
 }
 
-SMALL_EXPORT void slab_destroy(slab *s)
+void slab_destroy(slab *s)
 {
   assert(s->mem);
   free(s->mem);
   free(s);
 }
 
-SMALL_EXPORT void *slab_get_mem(slab *s)
+void *slab_get_mem(slab *s)
 {
   return s->mem;
 }
 
-SMALL_EXPORT void * slab_get_cur(slab *s)
+void * slab_get_cur(slab *s)
 {
   return (void *)((char *)s->mem + s->position);
 }
 
-SMALL_EXPORT int slab_get_size(slab *s)
+int slab_get_size(slab *s)
 {
   return s->size;
 }
 
-SMALL_EXPORT void slab_update_position(slab *s, int bytes)
+void slab_update_position(slab *s, int bytes)
 {
   int new_pos = s->position + bytes;
 
@@ -66,12 +66,12 @@ SMALL_EXPORT void slab_update_position(slab *s, int bytes)
   s->position = new_pos;
 }
 
-SMALL_EXPORT int slab_get_position(slab *s)
+int slab_get_position(slab *s)
 {
   return s->position;
 }
 
-SMALL_EXPORT int slab_eof(slab *s)
+int slab_eof(slab *s)
 {
   return s->position == s->size;
 }
