@@ -1,6 +1,9 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 /* a memory pool manager */
 
 #include <assert.h>
+#include <pthread.h>
 #include <stdlib.h>
 
 #include <small/pool.h>
@@ -8,16 +11,29 @@
 #include <small/util.h>
 
 
-SMALL_EXPORT void pool_init(pool_t p)
+struct pool {
+  int item_size;
+  int size;
+  slab **slabs;
+  int slab_count;
+  int slab_curr;
+  void **free_list;
+  int free_count;
+  pthread_mutex_t lock;
+  pthread_cond_t cond;
+};
+
+
+SMALL_EXPORT void pool_init(pool *p)
 {
   INIT_LOCK(p);
 }
 
-static void add_slab(pool_t p, int size)
+static void add_slab(pool *p, int size)
 {
   int index = p->slab_count++;
-  size_t old = sizeof(slab_t) * index;
-  size_t new = sizeof(slab_t) * p->slab_count;
+  size_t old = sizeof(slab *) * index;
+  size_t new = sizeof(slab *) * p->slab_count;
 
   p->slabs = safe_realloc(p->slabs, old, new);
   p->slabs[index] = slab_new(size);
@@ -28,9 +44,9 @@ static void add_slab(pool_t p, int size)
   p->free_list = safe_realloc(p->free_list, old, new);
 }
 
-SMALL_EXPORT pool_t pool_new(int size, int item_size)
+SMALL_EXPORT pool *pool_new(int size, int item_size)
 {
-  pool_t p = safe_alloc(sizeof(pool));
+  pool *p = safe_alloc(sizeof(pool));
   pool_init(p);
   p->size = size;
   p->item_size = item_size;
@@ -38,7 +54,7 @@ SMALL_EXPORT pool_t pool_new(int size, int item_size)
   return p;
 }
 
-SMALL_EXPORT void pool_destroy(pool_t p)
+SMALL_EXPORT void pool_destroy(pool *p)
 {
   int i;
 
@@ -55,9 +71,9 @@ SMALL_EXPORT void pool_destroy(pool_t p)
   free(p);
 }
 
-static slab_t get_usable_slab(pool_t p)
+static slab *get_usable_slab(pool *p)
 {
-  slab_t s = p->slabs[p->slab_curr];
+  slab *s = p->slabs[p->slab_curr];
 
   if (!slab_eof(s))
     return s;
@@ -69,9 +85,9 @@ static slab_t get_usable_slab(pool_t p)
   return NULL;
 }
 
-SMALL_EXPORT void * pool_get(pool_t p)
+SMALL_EXPORT void * pool_get(pool *p)
 {
-  slab_t s;
+  slab *s;
   void *item = NULL;
   int last;
 
@@ -94,7 +110,7 @@ SMALL_EXPORT void * pool_get(pool_t p)
   return item;
 }
 
-SMALL_EXPORT void pool_put(pool_t p, void *item)
+SMALL_EXPORT void pool_put(pool *p, void *item)
 {
   assert(p->free_count >= 0);
 
@@ -103,7 +119,7 @@ SMALL_EXPORT void pool_put(pool_t p, void *item)
   UNLOCK(p);
 }
 
-SMALL_EXPORT void pool_resize(pool_t p, int new_size)
+SMALL_EXPORT void pool_resize(pool *p, int new_size)
 {
   size_t size;
 

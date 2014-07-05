@@ -24,7 +24,7 @@ struct  list {
   list_item *tail;
   int count;
   int size;
-  pool_t pool;
+  pool *pool;
   pthread_mutex_t lock;
   pthread_cond_t cond;
 };

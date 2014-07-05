@@ -29,7 +29,7 @@ typedef struct dict_key_value dict_key_value;
 
 struct dict {
   list **keys;
-  pool_t pool;
+  pool *pool;
   int count;
   int size;
   int (*key_comparator)(void *a, void *b); /* 0 if =, -1 if a < b, 1 if a > b */

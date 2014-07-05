@@ -1,3 +1,5 @@
+/*-*- Mode: C; c-basic-offset: 2; indent-tabs-mode: nil -*-*/
+
 #include <assert.h>
 #include <stdlib.h>
 
@@ -11,7 +13,7 @@ static void test_basic(void)
   int i;
   void *start = NULL;
   void *item;
-  pool_t p = pool_new(100, 10);
+  pool *p = pool_new(100, 10);
 
   /* get all items */
   for (i=0; i < 10; i++) {
@@ -39,7 +41,7 @@ static void test_basic(void)
 static void test_resize(void)
 {
   void *a, *b, *c;
-  pool_t p = pool_new(20, 10);
+  pool *p = pool_new(20, 10);
 
   a = pool_get(p);
   assert(a);
