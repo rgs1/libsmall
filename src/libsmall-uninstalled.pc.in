@@ -8,4 +8,4 @@ Description: Library with basic data structures for small, self-contained progs
 Version: @VERSION@
 Requires.private:
 Libs: ${abs_top_builddir}/src/libsmall.la
-Cflags: -I${abs_top_srcdir} -I${abs_top_builddir} -I${abs_top_builddir}/src/small
+Cflags: -I${abs_top_srcdir} -I${abs_top_builddir} -I${abs_top_builddir}/src
