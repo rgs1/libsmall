@@ -1,0 +1,11 @@
+prefix=
+exec_prefix=
+abs_top_srcdir=@abs_top_srcdir@
+abs_top_builddir=@abs_top_builddir@
+
+Name: libsmall (uninstalled copy)
+Description: Library with basic data structures for small, self-contained progs
+Version: @VERSION@
+Requires.private:
+Libs: ${abs_top_builddir}/src/libsmall.la
+Cflags: -I${abs_top_srcdir} -I${abs_top_builddir} -I${abs_top_builddir}/src/small

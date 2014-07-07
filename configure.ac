@@ -78,7 +78,9 @@ LDFLAGS="\
 
 AC_CONFIG_HEADERS(config.h)
 AC_CONFIG_FILES([
-        Makefile
+        Makefile \
+        src/libsmall.pc \
+        src/libsmall-uninstalled.pc \
 ])
 
 AC_OUTPUT

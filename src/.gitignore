@@ -4,6 +4,7 @@
 *.la
 *.lo
 libsmall.pc
+libsmall-uninstalled.pc
 test-argparser
 test-dict
 test-pool

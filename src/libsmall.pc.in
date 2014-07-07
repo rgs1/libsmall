@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: libsmall
 Description: Library with basic data structure for small, self-contained progs
 Version: @VERSION@
-Libs.private: -lpthread
-Libs: -L${libdir} -lsmall
+Libs.private:
+Libs: -L${libdir} -lsmall -lpthread
 Cflags: -I${includedir}
