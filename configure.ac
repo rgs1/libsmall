@@ -68,7 +68,6 @@ my_CFLAGS="\
 -Wshadow \
 -Wsign-compare \
 -Wstrict-prototypes \
--Wtype-limits \
 "
 AC_SUBST([my_CFLAGS])
 
