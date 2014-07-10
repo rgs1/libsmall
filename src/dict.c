@@ -19,6 +19,7 @@
 #include <small/util.h>
 
 #include "pool.h"
+#include "util-internal.h"
 
 
 struct dict_key_value {

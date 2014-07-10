@@ -31,6 +31,8 @@
 #include <small/list.h>
 #include <small/util.h>
 
+#include "util-internal.h"
+
 
 struct argparser {
   dict *opts;

@@ -55,6 +55,7 @@ src_libsmall_la_SOURCES =\
 	src/slab.c \
 	src/slab.h \
 	src/util.c \
+	src/util-internal.h \
 	src/worker.c
 
 EXTRA_DIST += src/libsmall.sym

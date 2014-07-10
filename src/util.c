@@ -10,6 +10,8 @@
 
 #include <small/util.h>
 
+#include "util-internal.h"
+
 
 static void do_log(const char *level, const char *msgfmt, va_list ap);
 

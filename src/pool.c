@@ -10,6 +10,7 @@
 
 #include "pool.h"
 #include "slab.h"
+#include "util-internal.h"
 
 
 struct pool {

@@ -13,6 +13,7 @@
 #include <small/util.h>
 
 #include "pool.h"
+#include "util-internal.h"
 
 
 struct list_item {

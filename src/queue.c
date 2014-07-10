@@ -21,6 +21,8 @@
 #include <small/queue.h>
 #include <small/util.h>
 
+#include "util-internal.h"
+
 
 struct queue {
   void **ptrs;

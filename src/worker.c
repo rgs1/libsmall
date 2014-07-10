@@ -8,6 +8,9 @@
 #include <small/util.h>
 #include <small/worker.h>
 
+#include "util-internal.h"
+
+
 struct worker {
   void *(*loop)(void *data);
   void *data;
