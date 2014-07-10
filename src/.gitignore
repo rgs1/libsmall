@@ -10,6 +10,7 @@ test-dict
 test-pool
 test-list
 test-queue
+test-worker
 *~
 *.log
 *.trs

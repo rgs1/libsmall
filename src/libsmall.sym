@@ -67,6 +67,11 @@ global:
         pool_get;
         pool_put;
         pool_resize;
+        worker_new;
+        worker_create;
+        worker_run;
+        worker_get_data;
+        worker_destroy;
 local:
         *;
 };

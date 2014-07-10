@@ -40,7 +40,8 @@ pkginclude_HEADERS =\
 	src/small/dict.h \
 	src/small/list.h \
 	src/small/queue.h \
-	src/small/util.h
+	src/small/util.h \
+	src/small/worker.h
 
 lib_LTLIBRARIES = src/libsmall.la
 
@@ -53,7 +54,8 @@ src_libsmall_la_SOURCES =\
 	src/queue.c \
 	src/slab.c \
 	src/slab.h \
-	src/util.c
+	src/util.c \
+	src/worker.c
 
 EXTRA_DIST += src/libsmall.sym
 
@@ -72,14 +74,16 @@ TESTS =\
 	src/test-dict \
 	src/test-list \
 	src/test-pool \
-	src/test-queue
+	src/test-queue \
+	src/test-worker
 
 check_PROGRAMS =\
 	src/test-argparser \
 	src/test-dict \
 	src/test-list \
 	src/test-pool \
-	src/test-queue
+	src/test-queue \
+	src/test-worker
 
 src_test_argparser_SOURCES = src/test-argparser.c
 src_test_argparser_LDADD = src/libsmall.la
@@ -95,3 +99,6 @@ src_test_pool_LDADD = src/libsmall.la
 
 src_test_queue_SOURCES = src/test-queue.c
 src_test_queue_LDADD = src/libsmall.la
+
+src_test_worker_SOURCES = src/test-worker.c
+src_test_worker_LDADD = src/libsmall.la
