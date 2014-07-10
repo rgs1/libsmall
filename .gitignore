@@ -11,3 +11,4 @@ Makefile.in
 /libtool
 /stamp-h1
 *.tar.gz
+*.log

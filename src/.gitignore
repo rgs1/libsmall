@@ -11,3 +11,5 @@ test-pool
 test-list
 test-queue
 *~
+*.log
+*.trs
