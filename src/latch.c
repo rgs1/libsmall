@@ -49,7 +49,14 @@ void latch_up(latch *l)
 {
   LOCK(l);
   l->count++;
-  pthread_cond_broadcast(&l->cond);
+  UNLOCK(l);
+}
+
+SMALL_EXPORT
+void latch_add(latch *l, int add)
+{
+  LOCK(l);
+  l->count += add;
   UNLOCK(l);
 }
 

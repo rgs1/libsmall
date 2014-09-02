@@ -45,9 +45,9 @@ static void test_basic(void)
   latch *l = latch_new(0);
   pthread_t worker_tid, watcher_tid;
 
-  info("Up 2 times");
-  latch_up(l);
-  latch_up(l);
+  info("Up by 2");
+  latch_add(l, 2);
+  assert(latch_count(l) == 2);
 
   pthread_create(&worker_tid, NULL, &worker, l);
   pthread_create(&watcher_tid, NULL, &watcher, l);

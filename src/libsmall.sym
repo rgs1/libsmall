@@ -27,6 +27,7 @@ global:
         latch_init;
         latch_destroy;
         latch_up;
+        latch_add;
         latch_down;
         latch_count;
         latch_wait;
