@@ -23,6 +23,13 @@ global:
         dict_use_string_keys;
         dict_set_user_data;
         dict_get_user_data;
+        latch_new;
+        latch_init;
+        latch_destroy;
+        latch_up;
+        latch_down;
+        latch_count;
+        latch_wait;
         list_new;
         list_resize;
         list_head;

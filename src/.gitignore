@@ -8,6 +8,7 @@ libsmall-uninstalled.pc
 test-argparser
 test-dict
 test-pool
+test-latch
 test-list
 test-queue
 test-worker

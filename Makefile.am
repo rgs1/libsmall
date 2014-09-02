@@ -38,6 +38,7 @@ LIBSMALL_AGE=0
 pkginclude_HEADERS =\
 	src/small/argparser.h \
 	src/small/dict.h \
+	src/small/latch.h \
 	src/small/list.h \
 	src/small/queue.h \
 	src/small/util.h \
@@ -48,6 +49,7 @@ lib_LTLIBRARIES = src/libsmall.la
 src_libsmall_la_SOURCES =\
 	src/argparser.c \
 	src/dict.c \
+	src/latch.c \
 	src/list.c \
 	src/pool.c \
 	src/pool.h \
@@ -73,6 +75,7 @@ CLEANFILES += src/libsmall.pc
 TESTS =\
 	src/test-argparser \
 	src/test-dict \
+	src/test-latch \
 	src/test-list \
 	src/test-pool \
 	src/test-queue \
@@ -81,6 +84,7 @@ TESTS =\
 check_PROGRAMS =\
 	src/test-argparser \
 	src/test-dict \
+	src/test-latch \
 	src/test-list \
 	src/test-pool \
 	src/test-queue \
@@ -91,6 +95,9 @@ src_test_argparser_LDADD = src/libsmall.la
 
 src_test_dict_SOURCES = src/test-dict.c
 src_test_dict_LDADD = src/libsmall.la
+
+src_test_latch_SOURCES = src/test-latch.c
+src_test_latch_LDADD = src/libsmall.la
 
 src_test_list_SOURCES = src/test-list.c
 src_test_list_LDADD = src/libsmall.la
