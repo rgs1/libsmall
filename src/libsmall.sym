@@ -75,6 +75,12 @@ global:
         pool_get;
         pool_put;
         pool_resize;
+        timer_new;
+        timer_init;
+        timer_destroy;
+        timer_start;
+        timer_stop;
+        timer_diff;
         worker_new;
         worker_create;
         worker_run;

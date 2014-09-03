@@ -11,6 +11,7 @@ test-pool
 test-latch
 test-list
 test-queue
+test-timer
 test-worker
 *~
 *.log

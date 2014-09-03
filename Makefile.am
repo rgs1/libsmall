@@ -41,6 +41,7 @@ pkginclude_HEADERS =\
 	src/small/latch.h \
 	src/small/list.h \
 	src/small/queue.h \
+	src/small/timer.h \
 	src/small/util.h \
 	src/small/worker.h
 
@@ -56,6 +57,7 @@ src_libsmall_la_SOURCES =\
 	src/queue.c \
 	src/slab.c \
 	src/slab.h \
+	src/timer.c \
 	src/util.c \
 	src/util-internal.h \
 	src/worker.c
@@ -79,6 +81,7 @@ TESTS =\
 	src/test-list \
 	src/test-pool \
 	src/test-queue \
+	src/test-timer \
 	src/test-worker
 
 check_PROGRAMS =\
@@ -88,6 +91,7 @@ check_PROGRAMS =\
 	src/test-list \
 	src/test-pool \
 	src/test-queue \
+	src/test-timer \
 	src/test-worker
 
 src_test_argparser_SOURCES = src/test-argparser.c
@@ -107,6 +111,9 @@ src_test_pool_LDADD = src/libsmall.la
 
 src_test_queue_SOURCES = src/test-queue.c
 src_test_queue_LDADD = src/libsmall.la
+
+src_test_timer_SOURCES = src/test-timer.c
+src_test_timer_LDADD = src/libsmall.la
 
 src_test_worker_SOURCES = src/test-worker.c
 src_test_worker_LDADD = src/libsmall.la
